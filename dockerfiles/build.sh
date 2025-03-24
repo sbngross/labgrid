@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DOCKER_BUILDKIT=1
+export DOCKER_BUILDKIT=0
 : "${IMAGE_PREFIX:=docker.io/labgrid/}"
 : "${IMAGE_TAG:=latest}"
 
@@ -88,7 +88,7 @@ main() {
     fi
 
     script_dir="$(dirname "$(realpath "${BASH_SOURCE:-$0}")")"
-    version="$(python -m setuptools_scm)"
+    version="24.0"
     docker_cmd="$(get_docker_cmd "${DOCKER}")"
 
     cd "${script_dir}/.." || die "Could not cd into repo root dir"

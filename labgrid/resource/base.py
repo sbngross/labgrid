@@ -44,3 +44,13 @@ class SysfsGPIO(Resource):
     Args:
         index (int): index of target gpio line."""
     index = attr.ib(default=None, validator=attr.validators.instance_of(int))
+
+
+@target_factory.reg_resource
+@attr.s(eq=False)
+class CanBus(Resource):
+    """The basic SysfsGPIO contains an index
+
+    Args:
+        dev (str): index of target gpio line."""
+    dev = attr.ib(default=None, validator=attr.validators.instance_of(str))
