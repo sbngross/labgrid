@@ -924,6 +924,10 @@ class ClientSession:
         if action == "get":
             print(f"power{' ' + name if name else ''} for place {place.name} is {'on' if res else 'off'}")
 
+    def transition(self):
+        place = self.get_acquired_place()
+        self._get_target(place)
+
     def digital_io(self):
         place = self.get_acquired_place()
         action = self.args.action
@@ -1775,6 +1779,9 @@ def main():
     )  # pylint: disable=line-too-long
     subparser.add_argument("match", nargs="?")
     subparser.set_defaults(func=ClientSession.print_resources)
+
+    subparser = subparsers.add_parser("transition", aliases=("t",), help="Transition to given state")
+    subparser.set_defaults(func=ClientSession.transition)
 
     subparser = subparsers.add_parser("places", aliases=("p",), help="list available places")
     subparser.add_argument("-a", "--acquired", action="store_true")
