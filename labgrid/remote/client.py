@@ -928,7 +928,13 @@ class ClientSession:
             print(f"power{' ' + name if name else ''} for place {place.name} is {'on' if res else 'off'}")
 
     def transition(self):
+        if self.args.transition_state:
+            self.args.state = self.args.transition_state
+        if not self.args.state:
+            raise UserError("transition needs state")
+
         place = self.get_acquired_place()
+        # transition is implicitly called from _get_target
         self._get_target(place)
 
     def digital_io(self):
@@ -1784,6 +1790,12 @@ def main():
     subparser.set_defaults(func=ClientSession.print_resources)
 
     subparser = subparsers.add_parser("transition", aliases=("t",), help="Transition to given state")
+    subparser.add_argument(
+        "transition_state",
+        nargs="?",
+        metavar="STATE",
+        help="If ommited, state provided by -s or LG_STATE will be used. If provided will take precedence over the latter.",
+    )
     subparser.set_defaults(func=ClientSession.transition)
 
     subparser = subparsers.add_parser("places", aliases=("p",), help="list available places")
@@ -1933,7 +1945,9 @@ def main():
     subparser = subparsers.add_parser("scp", help="transfer file via scp")
     subparser.add_argument("--name", "-n", help="optional resource name")
     subparser.add_argument("--recursive", "-r", action="store_true", help="copy recursive")
-    subparser.add_argument("files", nargs="+", metavar="SRC/DST", help="source and destination path (use :dir/file for remote side)")
+    subparser.add_argument(
+        "files", nargs="+", metavar="SRC/DST", help="source and destination path (use :dir/file for remote side)"
+    )
     subparser.set_defaults(func=ClientSession.scp)
 
     subparser = subparsers.add_parser(
