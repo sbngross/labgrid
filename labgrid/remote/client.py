@@ -822,6 +822,20 @@ class ClientSession:
         manager.session = self
         manager.loop = self.loop
 
+    def _transition(self, target):
+        strategy = target.get_driver("Strategy")
+        if self.args.initial_state:
+            print(f"Setting initial state to {self.args.initial_state}")
+            strategy.force(self.args.initial_state)
+        print(f"Transitioning into state {self.args.state}")
+        strategy.transition(self.args.state)
+        # deactivate console drivers so we are able to connect with microcom later
+        try:
+            con = target.get_active_driver("ConsoleProtocol")
+            target.deactivate(con)
+        except NoDriverFoundError:
+            pass
+
     def _get_target(self, place):
         self._prepare_manager()
         target = None
@@ -833,18 +847,7 @@ class ClientSession:
             target = self.env.get_target(self.role)
         if target:
             if self.args.state:
-                strategy = target.get_driver("Strategy")
-                if self.args.initial_state:
-                    print(f"Setting initial state to {self.args.initial_state}")
-                    strategy.force(self.args.initial_state)
-                print(f"Transitioning into state {self.args.state}")
-                strategy.transition(self.args.state)
-                # deactivate console drivers so we are able to connect with microcom later
-                try:
-                    con = target.get_active_driver("ConsoleProtocol")
-                    target.deactivate(con)
-                except NoDriverFoundError:
-                    pass
+                self._transition(target)
         else:
             target = Target(place.name, env=self.env)
             RemotePlace(target, name=place.name)
@@ -923,6 +926,10 @@ class ClientSession:
         res = getattr(drv, action)()
         if action == "get":
             print(f"power{' ' + name if name else ''} for place {place.name} is {'on' if res else 'off'}")
+
+    def transition(self):
+        place = self.get_acquired_place()
+        self._get_target(place)
 
     def digital_io(self):
         place = self.get_acquired_place()
@@ -1775,6 +1782,9 @@ def main():
     )  # pylint: disable=line-too-long
     subparser.add_argument("match", nargs="?")
     subparser.set_defaults(func=ClientSession.print_resources)
+
+    subparser = subparsers.add_parser("transition", aliases=("t",), help="Transition to given state")
+    subparser.set_defaults(func=ClientSession.transition)
 
     subparser = subparsers.add_parser("places", aliases=("p",), help="list available places")
     subparser.add_argument("-a", "--acquired", action="store_true")
