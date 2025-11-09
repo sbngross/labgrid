@@ -822,6 +822,20 @@ class ClientSession:
         manager.session = self
         manager.loop = self.loop
 
+    def _transition(self, target):
+        strategy = target.get_driver("Strategy")
+        if self.args.initial_state:
+            print(f"Setting initial state to {self.args.initial_state}")
+            strategy.force(self.args.initial_state)
+        print(f"Transitioning into state {self.args.state}")
+        strategy.transition(self.args.state)
+        # deactivate console drivers so we are able to connect with microcom later
+        try:
+            con = target.get_active_driver("ConsoleProtocol")
+            target.deactivate(con)
+        except NoDriverFoundError:
+            pass
+
     def _get_target(self, place):
         self._prepare_manager()
         target = None
@@ -833,18 +847,7 @@ class ClientSession:
             target = self.env.get_target(self.role)
         if target:
             if self.args.state:
-                strategy = target.get_driver("Strategy")
-                if self.args.initial_state:
-                    print(f"Setting initial state to {self.args.initial_state}")
-                    strategy.force(self.args.initial_state)
-                print(f"Transitioning into state {self.args.state}")
-                strategy.transition(self.args.state)
-                # deactivate console drivers so we are able to connect with microcom later
-                try:
-                    con = target.get_active_driver("ConsoleProtocol")
-                    target.deactivate(con)
-                except NoDriverFoundError:
-                    pass
+                self._transition(target)
         else:
             target = Target(place.name, env=self.env)
             RemotePlace(target, name=place.name)
