@@ -1923,7 +1923,9 @@ def main():
     subparser = subparsers.add_parser("scp", help="transfer file via scp")
     subparser.add_argument("--name", "-n", help="optional resource name")
     subparser.add_argument("--recursive", "-r", action="store_true", help="copy recursive")
-    subparser.add_argument("files", nargs="+", metavar="SRC/DST", help="source and destination path (use :dir/file for remote side)")
+    subparser.add_argument(
+        "files", nargs="+", metavar="SRC/DST", help="source and destination path (use :dir/file for remote side)"
+    )
     subparser.set_defaults(func=ClientSession.scp)
 
     subparser = subparsers.add_parser(
