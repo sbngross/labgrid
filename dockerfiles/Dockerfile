@@ -6,10 +6,27 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN set -e ;\
     apt update -q=2 ;\
-    apt install -q=2 --yes --no-install-recommends python3 python3-dev python3-pip python3-setuptools git build-essential ;\
+    apt install -q=2 --yes --no-install-recommends \
+        python3 \
+        python3-dev \
+        python3-pip \
+        python3-setuptools \
+        python3-tomlkit \
+        python3-git \
+        build-essential \
+        ;\
     pip3 install --break-system-packages -U pip;\
     apt clean ;\
     rm -rf /var/lib/apt/lists/*
+
+COPY ./dockerfiles/dump-requirements.py ./pyproject.toml /tmp/docker/
+
+RUN set -e ;\
+    cd /tmp/docker ;\
+    python3 dump-requirements.py requirements.txt ;\
+    pip3 install --break-system-packages -r requirements.txt ;\
+    cd ;\
+    rm -rf /tmp/docker
 
 #
 # Client

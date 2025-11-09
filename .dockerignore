@@ -22,4 +22,5 @@
 
 /dockerfiles/
 !/dockerfiles/exporter/entrypoint.sh
+!/dockerfiles/dump-requirements.py
 .git/
