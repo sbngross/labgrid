@@ -1577,9 +1577,6 @@ class ClientSession:
 
     export.needs_target = True
 
-    def print_version(self):
-        print(labgrid_version())
-
 
 _loop: ContextVar["asyncio.AbstractEventLoop | None"] = ContextVar("_loop", default=None)
 
@@ -2105,10 +2102,14 @@ def main():
     subparser.set_defaults(func=ClientSession.export)
 
     subparser = subparsers.add_parser("version", help="show version")
-    subparser.set_defaults(func=ClientSession.print_version)
 
     # make any leftover arguments available for some commands
     args, leftover = parser.parse_known_args()
+
+    if args.command == "version":
+        print(labgrid_version())
+        return
+
     if args.command not in ["ssh", "rsync", "forward"]:
         args = parser.parse_args()
     else:
