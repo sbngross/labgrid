@@ -124,7 +124,7 @@ packages = [
 
 [tool.setuptools_scm]
 local_scheme = "node-and-date"
-version_scheme = "no-guess-dev"
+version_scheme = "post-release"
 version_file = "labgrid/_version.py"
 
 [tool.pytest.ini_options]
